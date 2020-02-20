@@ -1,0 +1,12 @@
+*.exp
+*.pri
+*.ilk
+*.iobj
+*.ipdb
+cs_test_basic/bin
+cs_test_basic/obj
+.vs
+bin
+sdkrt/x64/
+*/Debug
+*/Release

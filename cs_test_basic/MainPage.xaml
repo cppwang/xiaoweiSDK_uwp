@@ -1,0 +1,29 @@
+﻿<Page
+    x:Class="cs_test_basic.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:cs_test_basic"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Button Content="TestDll - text&#xD;&#xA;" Margin="139,18,0,0" VerticalAlignment="Top" Height="44" Width="363" Click="Button_Click_1"/>
+        <Button Content="Stop" Margin="162,270,0,0" VerticalAlignment="Top" Height="48" Width="354" Click="Button_Click_2"/>
+        <Button Content="Remove Binder Test" Margin="153,190,0,0" VerticalAlignment="Top" Height="53" Width="363" Click="Button_Click_3"/>
+        <Button Content="GetQRCode" Margin="139,97,0,0" VerticalAlignment="Top" Height="51" Width="363" Click="Button_Click_4"/>
+        <Button Content="Start Again" Margin="208,500,0,0" VerticalAlignment="Top" Height="53" Width="202" Click="Button_Click_5"/>
+        <Button Content="GetDin" Margin="184,405,0,0" VerticalAlignment="Top" Height="57" Width="332" Click="Button_Click_6"/>
+        <Button x:Name="button" Content="reportstate" Margin="608,97,0,0" VerticalAlignment="Top" Height="60" Width="163" Click="Button_Click_7"/>
+        <Button x:Name="button1" Content="resource_get_detail_info_cs" Margin="592.662,187.718,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Height="55.828" UseLayoutRounding="False" Width="299.423" d:LayoutRounding="Auto" Click="Button1_Click">
+            <Button.RenderTransform>
+                <CompositeTransform Rotation="0.109"/>
+            </Button.RenderTransform>
+        </Button>
+        <Button x:Name="button2" Content="resource_set_favorite_cs" Margin="590,279,0,0" VerticalAlignment="Top" Height="41" Width="126" Click="Button2_Click"/>
+        <Button x:Name="button3" Content="ReportState" Height="57" Margin="654,405,0,0" VerticalAlignment="Top" Width="175" Click="Button3_Click_1"/>
+        <Button x:Name="button4" Content="GetBinderList" Margin="0,500,0,0" VerticalAlignment="Top" Height="53" Width="186" HorizontalAlignment="Center" Click="Button4_Click"/>
+
+    </Grid>
+</Page>
