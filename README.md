@@ -1,1 +1,1 @@
-# uwpsdk3
+小微SDK在uwp平台上的wrapper，将c++的接口转成c#的。
