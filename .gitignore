@@ -3,6 +3,7 @@
 *.ilk
 *.iobj
 *.ipdb
+*.db
 cs_test_basic/bin
 cs_test_basic/obj
 .vs
@@ -10,3 +11,8 @@ bin
 sdkrt/x64/
 */Debug
 */Release
+*/Debug/
+*/Release/
+cs_test_basic/App1/obj
+*.ipch
+*.opendb
