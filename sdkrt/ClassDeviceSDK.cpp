@@ -141,13 +141,16 @@ int ClassDeviceSDK::_device_init(
 
     DEVICE_INFO info = { 0 };
     info.os_platform = (const char*)"UWP";  // 平台名
-    info.device_serial_number = StringToAscIIChars(sn).c_str();
-    info.device_license = StringToAscIIChars(license).c_str();     // 设备名称
+    string str_sn = StringToAscIIChars(sn);
+    string str_licence = StringToAscIIChars(license);
+    string str_appid = StringToAscIIChars(appid);
+    info.device_serial_number = str_sn.c_str();
+    info.device_license = str_licence.c_str();     // 设备名称
     info.product_id = product_id;
     info.key_version = key_version;
     info.user_hardware_version = hardware_version;
     info.run_mode = run_mode;
-    info.xiaowei_appid = StringToAscIIChars(appid).c_str();
+    info.xiaowei_appid = str_appid.c_str();
 
     DEVICE_NOTIFY notify = { 0 };
     notify.on_net_status_changed = on_net_status_changed;
@@ -162,14 +165,16 @@ int ClassDeviceSDK::_device_init(
     Platform::String^ localfolder = Windows::Storage::ApplicationData::Current->LocalFolder->Path;
     LogMessage("debug dir " + localfolder);
     DEVICE_INIT_PATH init_path = { 0 };
-    init_path.system_path = StringUtf8ToAscIIChars(localfolder).c_str();
+    string str_path = StringUtf8ToAscIIChars(localfolder);
+    init_path.system_path = str_path.c_str();
     init_path.system_path_capacity = 100 * 1024 * 1024;
 
     SERVICE_CALLBACK service_callback = {0};
     service_callback.xiaowei_callback.on_net_delay_callback = on_net_delay_callback;
     service_callback.xiaowei_callback.on_request_callback = on_request_callback;
-
-    device_set_log_func(on_device_log, info.run_mode == 0? 3 : 0, false);
+    LogMessage("set log default function");
+    //device_set_log_func(on_device_log, info.run_mode == 0? 3 : 0, false);
+    LogMessage("init device");
     return device_init(&info, &notify, &init_path, 1,&service_callback);
 }
 
@@ -235,7 +240,8 @@ int ClassDeviceSDK::_device_erase_all_binders() {
 
 int ClassDeviceSDK::_device_erase_binder(Platform::String^ binder_user_name) {
     if (binder_user_name == nullptr) return error_param_invalid;
-    return device_erase_binders(StringToAscIIChars(binder_user_name).c_str());
+    string str_ = StringToAscIIChars(binder_user_name);
+    return device_erase_binders(str_.c_str());
 }
 
 int ClassDeviceSDK::_device_get_all_unverify_bind_request(_OUTPUT_PARAM_ IVector<TX_BINDER_INFO_CS^>^ binderList) {
@@ -263,22 +269,27 @@ int ClassDeviceSDK::_device_get_all_unverify_bind_request(_OUTPUT_PARAM_ IVector
 
 int ClassDeviceSDK::_device_handle_binder_verify_request(Platform::String^ user_name, bool is_accept) {
     if (user_name == nullptr) return error_param_invalid;
-    return device_handle_binder_verify_request(StringToAscIIChars(user_name).c_str(), is_accept);
+    string str = StringToAscIIChars(user_name);
+    return device_handle_binder_verify_request(str.c_str(), is_accept);
 }
 
 int ClassDeviceSDK::_device_update_binder_alias(Platform::String^ user_name, Platform::String^ alias) {
     if (user_name == nullptr) return error_param_invalid;
-    return device_update_binder_alias(StringToAscIIChars(user_name).c_str(), StringToAscIIChars(alias).c_str());
+    string str = StringToAscIIChars(user_name);
+    string str2 = StringToAscIIChars(alias);
+    return device_update_binder_alias(str.c_str(), str2.c_str());
 }
 
 int ClassDeviceSDK::_device_update_device_nickname(Platform::String^ nickname) {
     if (nickname == nullptr) return error_param_invalid;
-    return device_update_device_nickname(StringToAscIIChars(nickname).c_str());
+    string str = StringToAscIIChars(nickname);
+    return device_update_device_nickname(str.c_str());
 }
 
 int ClassDeviceSDK::_device_update_device_avatar(Platform::String^ jpg_file_path) {
     if (jpg_file_path == nullptr) return error_param_invalid;
-    return device_update_device_nickname(StringToAscIIChars(jpg_file_path).c_str());
+    string str = StringToAscIIChars(jpg_file_path);
+    return device_update_device_nickname(str.c_str());
 }
 
 int ClassDeviceSDK::_device_get_device_profile(_OUTPUT_PARAM_ TX_DEVICE_PROFILE_CS^ profile) {
@@ -292,6 +303,14 @@ int ClassDeviceSDK::_device_get_device_profile(_OUTPUT_PARAM_ TX_DEVICE_PROFILE_
 }
 
 /* xiaowei core interface */
+int ClassDeviceSDK::_xiaowei_start_service() {
+    XIAOWEI_CALLBACK cb = { 0 };
+    cb.on_net_delay_callback = on_net_delay_callback;
+    cb.on_request_callback = on_request_callback;
+    XIAOWEI_NOTIFY notify = { 0 };
+    return xiaowei_service_start(&cb,&notify);
+}
+
 int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
     unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context) {
     if (voice_id == nullptr || raw_data == nullptr || context == nullptr) return error_param_invalid;
@@ -313,7 +332,8 @@ int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, 
     }
 
     XIAOWEI_PARAM_CONTEXT req_context = { 0 };
-    req_context.id = StringToAscIIChars(context->Getid()).c_str();
+    string str_context_id = StringToAscIIChars(context->Getid());
+    req_context.id = str_context_id.c_str();
     req_context.speak_timeout = context->Getspeak_timeout();
     req_context.silent_timeout = context->Getsilent_timeout();
     req_context.voice_request_begin = context->Getvoice_request_begin();
@@ -322,12 +342,15 @@ int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, 
     XIAOWEI_WAKEUP_TYPE wakeup_type = (XIAOWEI_WAKEUP_TYPE)context->Getwakeup_type();
     req_context.wakeup_profile = wakeup_profile;
     req_context.wakeup_type = wakeup_type;
-    req_context.wakeup_word = StringUtf8ToAscIIChars(context->Getwakeup_word()).c_str();
+    string str_utf8_wakeup_word = StringUtf8ToAscIIChars(context->Getwakeup_word());
+    req_context.wakeup_word = str_utf8_wakeup_word.c_str();
     req_context.request_param = context->Getrequest_param();
     req_context.local_tts_version = context->Getlocal_tts_version();
-    auto& skill_info = context->Getskill_info();
-    req_context.skill_info.id = StringUtf8ToAscIIChars(skill_info.id).c_str();
-    req_context.skill_info.name = StringUtf8ToAscIIChars(skill_info.name).c_str();
+    auto skill_info = context->Getskill_info();
+    string str_utf8_skill_info_id = StringUtf8ToAscIIChars(skill_info.id);
+    req_context.skill_info.id = str_utf8_skill_info_id.c_str();
+    string str_utf8_skill_info_name = StringUtf8ToAscIIChars(skill_info.name);
+    req_context.skill_info.name = str_utf8_skill_info_name.c_str();
     req_context.skill_info.type = skill_info.type;
 
     int ret = xiaowei_request(req_voice_id, req_type, req_chat_data, char_data_len, &req_context);
@@ -342,27 +365,36 @@ int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, 
 
 int ClassDeviceSDK::_xiaowei_request_cancel(Platform::String^ voice_id) {
     if (voice_id == nullptr) return error_param_invalid;
-    return xiaowei_request_cancel(StringToAscIIChars(voice_id).c_str());
+    string str = StringToAscIIChars(voice_id);
+    return xiaowei_request_cancel(str.c_str());
 }
 
 int ClassDeviceSDK::_xiaowei_report_state(TXCA_PARAM_STATE_CS^ state) {
     if (state == nullptr) return error_param_invalid;
     XIAOWEI_PARAM_STATE xw_state = { 0 };
-    auto& skill_info = state->Getskill_info();
-    xw_state.skill_info.id = StringUtf8ToAscIIChars(skill_info.id).c_str();
-    xw_state.skill_info.name = StringUtf8ToAscIIChars(skill_info.name).c_str();
+    auto skill_info = state->Getskill_info();
+    string str_utf8_skill_info_id = StringUtf8ToAscIIChars(skill_info.id);
+    string str_utf8_skill_info_name = StringUtf8ToAscIIChars(skill_info.name);
+    string str_utf8_play_id = StringUtf8ToAscIIChars(state->Getplay_id());
+    string str_utf8_play_content = StringUtf8ToAscIIChars(state->Getplay_content());
+    string str_utf8_resource_name = StringUtf8ToAscIIChars(state->Getresource_name());
+    string str_utf8_performer = StringUtf8ToAscIIChars(state->Getperformer());
+    string str_utf8_collection = StringUtf8ToAscIIChars(state->Getcollection());
+    string str_utf8_cover_url = StringUtf8ToAscIIChars(state->Getcover_url());
+    xw_state.skill_info.id = str_utf8_skill_info_id.c_str();
+    xw_state.skill_info.name = str_utf8_skill_info_name.c_str();
     xw_state.skill_info.type = skill_info.type;
     xw_state.play_state = (XIAOWEI_PLAY_STATE)state->Getplay_state();
     xw_state.availability = (XIAOWEI_AVAILABILITY)state->Getavailability();
-    xw_state.play_id = StringUtf8ToAscIIChars(state->Getplay_id()).c_str();
-    xw_state.play_content = StringUtf8ToAscIIChars(state->Getplay_content()).c_str();
+    xw_state.play_id = str_utf8_play_id.c_str();
+    xw_state.play_content = str_utf8_play_content.c_str();
     xw_state.play_offset = state->Getplay_offset();
     xw_state.play_mode = (XIAOWEI_PLAY_MODE)state->Getplay_mode();
     xw_state.resource_type = (XIAOWEI_RESOURCE_FORMAT)state->Getresource_type();
-    xw_state.resource_name = StringUtf8ToAscIIChars(state->Getresource_name()).c_str();
-    xw_state.performer = StringUtf8ToAscIIChars(state->Getperformer()).c_str();
-    xw_state.collection = StringUtf8ToAscIIChars(state->Getcollection()).c_str();
-    xw_state.cover_url = StringUtf8ToAscIIChars(state->Getcover_url()).c_str();
+    xw_state.resource_name = str_utf8_resource_name.c_str();
+    xw_state.performer = str_utf8_performer.c_str();
+    xw_state.collection = str_utf8_collection.c_str();
+    xw_state.cover_url = str_utf8_cover_url.c_str();
     xw_state.volume = state->Getvolume();
     xw_state.brightness = state->Getbrightness();
     
@@ -372,9 +404,12 @@ int ClassDeviceSDK::_xiaowei_report_state(TXCA_PARAM_STATE_CS^ state) {
 int ClassDeviceSDK::_xiaowei_request_cmd(_OUTPUT_PARAM_ Platform::String^ voice_id, Platform::String^ cmd, Platform::String^ sub_cmd, Platform::String^ param) {
     if (voice_id == nullptr || cmd == nullptr) return error_param_invalid;
     char req_voice_id[33];
-    auto ret = xiaowei_request_cmd(req_voice_id, StringToAscIIChars(cmd).c_str(),
-        sub_cmd ? StringToAscIIChars(sub_cmd).c_str() : nullptr,
-        param ? StringToAscIIChars(voice_id).c_str() : nullptr,
+    string str_cmd = StringToAscIIChars(cmd);
+    string str_sub_cmd = sub_cmd ? "":StringToAscIIChars(sub_cmd);
+    string str_param = param ? "":StringToAscIIChars(param);
+    auto ret = xiaowei_request_cmd(req_voice_id, str_cmd.c_str(),
+        str_sub_cmd.c_str(),
+        str_param.c_str(),
         on_cmd_request_callback);
     voice_id = StringFromAscIIChars(req_voice_id);
     return ret;
@@ -387,9 +422,11 @@ int ClassDeviceSDK::_xiaowei_enable_V2A(bool enable) {
 int ClassDeviceSDK::_xiaowei_set_words_list(TXCA_WORDS_TYPE_CS type, IVector<Platform::String^>^ words) {
     if (words == nullptr || words->Size == 0) return error_param_invalid;
     const char** words_list = new const char*[words->Size];
-    for each (auto var in words)
+    for(int i = 0; i < words->Size; i++)
     {
-        const char* word = StringUtf8ToAscIIChars(var).c_str();
+        string str = StringUtf8ToAscIIChars(words->GetAt(i));
+        const char* word = str.c_str();
+        words_list[i] = word;
     }
 
     auto ret = xiaowei_set_wordslist((XIAOWEI_WORDS_TYPE)type, (char**)words_list, (int)words->Size, nullptr);

@@ -789,6 +789,8 @@ namespace sdkrt
         int _device_get_device_profile(_OUTPUT_PARAM_ TX_DEVICE_PROFILE_CS^ profile);
 
         /* xiaowei core interface */
+        int _xiaowei_start_service();
+
         int _xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
             unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context);
 
