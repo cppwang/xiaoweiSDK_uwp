@@ -841,5 +841,8 @@ namespace sdkrt
 
         // help func
         static void fill_binder_list(IVector<TX_BINDER_INFO_CS^>^ binderList, const DEVICE_BINDER_INFO* pBinderList, int nCount);
+
+        static bool initialized;
+        static void InitNetwork();
     };
 }
