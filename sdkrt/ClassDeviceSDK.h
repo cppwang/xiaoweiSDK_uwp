@@ -97,6 +97,18 @@ namespace sdkrt
         int type;
     };
 
+    public ref struct VOICE_ID_CS sealed{
+    public:
+        Platform::String^ Get() {
+            return val;
+        }
+        void Set(Platform::String^ v) {
+            val = v;
+        }
+    private:
+        String^ val;
+    };
+
     //state for report
     public ref struct TXCA_PARAM_STATE_CS sealed
     {
@@ -764,7 +776,7 @@ namespace sdkrt
         /* device interface */
         int _device_uninit();
 
-        int _device_get_sdk_version(_OUTPUT_PARAM_ unsigned int* main_ver, _OUTPUT_PARAM_ unsigned int* sub_ver, _OUTPUT_PARAM_ unsigned int* fix_ver, _OUTPUT_PARAM_ unsigned int* build_number);
+        String^ _device_get_sdk_version();
 
         int _device_refresh_qr_code();
 
@@ -791,14 +803,14 @@ namespace sdkrt
         /* xiaowei core interface */
         int _xiaowei_start_service();
 
-        int _xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
+        int _xiaowei_request(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
             unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context);
 
         int _xiaowei_request_cancel(Platform::String^ voice_id);
 
         int _xiaowei_report_state(TXCA_PARAM_STATE_CS^ state);
 
-        int _xiaowei_request_cmd(_OUTPUT_PARAM_ Platform::String^ voice_id, Platform::String^ cmd, Platform::String^ sub_cmd, Platform::String^ param);
+        int _xiaowei_request_cmd(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, Platform::String^ cmd, Platform::String^ sub_cmd, Platform::String^ param);
 
         int _xiaowei_enable_V2A(bool enable);
 

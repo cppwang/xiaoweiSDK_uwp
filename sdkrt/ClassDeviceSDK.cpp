@@ -6,6 +6,7 @@
 #include <fstream>
 #include "WS2tcpip.h"
 #include "ws2def.h"
+#include <mutex>
 
 using namespace std;
 using namespace sdkrt;
@@ -116,14 +117,9 @@ Platform::String^ UTF8_To_Managed_Str2(const std::string& str)
     return pStr;
 }
 
-bool ClassDeviceSDK::initialized = false;
+std::once_flag once_flag_;
 
 void ClassDeviceSDK::InitNetwork() {
-    if (initialized) {
-        return;
-    }
-    initialized = true;
-
     WORD wVersionRequested;
     WSADATA wsaData;
     int err;
@@ -154,14 +150,12 @@ void ClassDeviceSDK::InitNetwork() {
     else {
         OutputDebugStringA("The Winsock 2.2 dll was found okay\n");
     }
-
-
 }
 
-ClassDeviceSDK::ClassDeviceSDK()
+ClassDeviceSDK::ClassDeviceSDK()    
 {
     LogMessage("ClassDeviceSDK called");
-    InitNetwork();
+    std::call_once(once_flag_, [] {InitNetwork(); });
 }
 
 void ClassDeviceSDK::LogMessage(Object^ parameter)
@@ -228,8 +222,18 @@ int ClassDeviceSDK::_device_uninit() {
     return device_uninit();
 }
 
-int ClassDeviceSDK::_device_get_sdk_version(_OUTPUT_PARAM_ unsigned int* main_ver, _OUTPUT_PARAM_ unsigned int* sub_ver, _OUTPUT_PARAM_ unsigned int* fix_ver, _OUTPUT_PARAM_ unsigned int* build_number) {
-    return device_get_sdk_version(main_ver, sub_ver, fix_ver, build_number);
+String^ ClassDeviceSDK::_device_get_sdk_version() {
+    unsigned int m, s, f, b;
+    device_get_sdk_version(&m, &s, &f, &b);
+    std::string st;
+    st += std::to_string(m);
+    st += ".";
+    st += std::to_string(s);
+    st += ".";
+    st += std::to_string(f);
+    st += ".";
+    st += std::to_string(b);
+    return StringFromAscIIChars(st.c_str());
 }
 
 int ClassDeviceSDK::_device_refresh_qr_code() {
@@ -356,10 +360,10 @@ int ClassDeviceSDK::_xiaowei_start_service() {
     return xiaowei_service_start(&cb,&notify);
 }
 
-int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
+int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
     unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context) {
-    if (voice_id == nullptr || raw_data == nullptr || context == nullptr) return error_param_invalid;
-    char req_voice_id[33];
+    if (raw_data == nullptr || context == nullptr) return error_param_invalid;
+    char req_voice_id[100];
     const int MAX_BUF_SIZE = 2048;
     XIAOWEI_CHAT_TYPE req_type = (XIAOWEI_CHAT_TYPE)type;
 
@@ -397,19 +401,17 @@ int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ Platform::String^ voice_id, 
     string str_utf8_skill_info_name = StringUtf8ToAscIIChars(skill_info.name);
     req_context.skill_info.name = str_utf8_skill_info_name.c_str();
     req_context.skill_info.type = skill_info.type;
-
     int ret = xiaowei_request(req_voice_id, req_type, req_chat_data, char_data_len, &req_context);
 
     if (char_data_len > MAX_BUF_SIZE) {
         delete[] req_chat_data;
     }
 
-    voice_id = StringFromAscIIChars(req_voice_id);
+    voice_id->Set(StringFromAscIIChars(req_voice_id));
     return ret;
 }
 
 int ClassDeviceSDK::_xiaowei_request_cancel(Platform::String^ voice_id) {
-    if (voice_id == nullptr) return error_param_invalid;
     string str = StringToAscIIChars(voice_id);
     return xiaowei_request_cancel(str.c_str());
 }
@@ -446,9 +448,9 @@ int ClassDeviceSDK::_xiaowei_report_state(TXCA_PARAM_STATE_CS^ state) {
     return xiaowei_report_state(&xw_state);
 }
 
-int ClassDeviceSDK::_xiaowei_request_cmd(_OUTPUT_PARAM_ Platform::String^ voice_id, Platform::String^ cmd, Platform::String^ sub_cmd, Platform::String^ param) {
-    if (voice_id == nullptr || cmd == nullptr) return error_param_invalid;
-    char req_voice_id[33];
+int ClassDeviceSDK::_xiaowei_request_cmd(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, Platform::String^ cmd, Platform::String^ sub_cmd, Platform::String^ param) {
+    if (cmd == nullptr) return error_param_invalid;
+    char req_voice_id[100];
     string str_cmd = StringToAscIIChars(cmd);
     string str_sub_cmd = sub_cmd ? "":StringToAscIIChars(sub_cmd);
     string str_param = param ? "":StringToAscIIChars(param);
@@ -456,7 +458,7 @@ int ClassDeviceSDK::_xiaowei_request_cmd(_OUTPUT_PARAM_ Platform::String^ voice_
         str_sub_cmd.c_str(),
         str_param.c_str(),
         on_cmd_request_callback);
-    voice_id = StringFromAscIIChars(req_voice_id);
+    voice_id->Set(StringFromAscIIChars(req_voice_id));
     return ret;
 }
 
