@@ -290,7 +290,6 @@
     <ClInclude Include="ClassDeviceSDK.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="TXCSkillsDefine_CS.h" />
     <ClInclude Include="TXSDKCommonDef_CS.h" />
   </ItemGroup>
   <ItemGroup>

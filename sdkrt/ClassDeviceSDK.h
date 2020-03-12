@@ -31,7 +31,7 @@ namespace sdkrt
 
     public enum class TXCA_WAKEUP_TYPE_CS {
         txca_wakeup_type_local = 0,
-        txca_wakeup_type_cloud = 1,
+        txca_wakeup_type_cloud = 1, // deprecated
         txca_wakeup_type_local_with_text = 2,
         txca_wakeup_type_free = 3,
     };
@@ -48,7 +48,7 @@ namespace sdkrt
     public enum class TXCA_RESOURCE_FORMAT_CS {
         txca_resource_url = 0,  //url资源
         txca_resource_text = 1, //纯文本(无TTS)
-        txca_resource_tts_id = 2,  //TTS播放(附带文本信息)
+        txca_resource_tts_id = 2,  //TTS,推送类型，废弃
         txca_resource_tts_url = 3, //TTS URL
         txca_resource_location = 4,
         txca_resource_command = 5, //指令类型
@@ -62,10 +62,11 @@ namespace sdkrt
         txca_chat_via_voice = 0,  //语音请求
         txca_chat_via_text = 1,   //文本请求
         txca_chat_only_tts = 2,   //tts请求
-        txca_chat_via_intent = 3, //
+        txca_chat_via_intent = 3, //暂未开放
         txca_chat_via_wakeup_check = 4, //唤醒校验请求
     };
 
+    /** tts push使用，暂时没什么用了 */
     public enum class TXCA_AUDIO_DATA_FORMAT_CS {
         txca_audio_data_pcm = 0,
         txca_audio_data_silk = 1,
@@ -803,8 +804,9 @@ namespace sdkrt
         /* xiaowei core interface */
         int _xiaowei_start_service();
 
+        // if req_str is nullptr, will use rwa_data, this can avoid utf-8 probelm
         int _xiaowei_request(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
-            unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context);
+            unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context, Platform::String^ req_str);
 
         int _xiaowei_request_cancel(Platform::String^ voice_id);
 

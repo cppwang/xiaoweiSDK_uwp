@@ -85,16 +85,22 @@ namespace App1
                 sb.Append("callBackOnRequest called.").Append("\n");
                 sb.Append("voiceid = ").Append(voice_id).Append("\n");
                 sb.Append("errcode = ").Append(state_info.GetErrorCode()).Append("\n");
-                sb.Append("voiceid = ").Append(voice_id).Append("\n");
-                if (sdkrt.TXCA_EVENT_CS.txca_event_on_response == evt)
+                sb.Append("event = ").Append(evt).Append("\n");
+                if (TXCA_EVENT_CS.txca_event_on_response == evt)
                 {
+                    sb.Append("Answer text is: ").Append(state_info.Getrsp_text()).Append("\n");
+                    sb.Append("control ID is = ").Append(state_info.Getcontrol_id()).
+                    Append(". With control value : ").Append(state_info.Getcontrol_value()).Append("\n");
+                    sb.Append("resources:").Append("\n");
                     for (int i = 0; i < state_info.Getresource_groups_size(); i++)
                     {
                         var grp = state_info.Getresource_groups().ElementAt(i);
                         for (int j = 0; j < grp.GetResourceSize(); j++)
                         {
-                            sb.Append(grp.GetResource().ElementAt(j).Getformat()).Append(grp.GetResource().ElementAt(j).Getid()).Append(
-                                grp.GetResource().ElementAt(j).Getcontent()).Append("\n");
+                            sb.Append("[").Append(i).Append("][").Append(j).Append("]:");
+                            sb.Append(grp.GetResource().ElementAt(j).Getformat()).Append(". Content id: ").
+                            Append(grp.GetResource().ElementAt(j).Getid()).Append("\n Content val: ").
+                            Append(grp.GetResource().ElementAt(j).Getcontent()).Append("\n");
                         }
                     }
 
@@ -102,14 +108,13 @@ namespace App1
                 }
                 else
                 {
-                    sb.Append("status is ").Append(evt);
                     if (extend_state_info_len > 0)
                     {
-                        sb.Append(extend_state_info).Append(" \n");
+                        sb.Append("extend info: ").Append(extend_state_info).Append(" \n");
                     }
                     else
                     {
-                        sb.Append(" with empty extend_state_info").Append(" \n");
+                        sb.Append("with empty extend_state_info").Append(" \n");
                     }
                     Trace.WriteLine(sb.ToString());
                 }
@@ -123,14 +128,16 @@ namespace App1
             VOICE_ID_CS voiceid = new VOICE_ID_CS();
             TXCA_PARAM_CONTEXT_CS context_cs = new TXCA_PARAM_CONTEXT_CS();
             context_cs.Setvoice_request_begin(true);
-            String request = "放一首歌";
+            String request = "hello";
+            /* utf8 problem
             byte[] request_byte = new byte[request.Length];
             for (int i = 0; i < request.Length; i++)
             {
                 request_byte[i] = (byte)request[i];
             }
-            var ret = classDeviceSDK._xiaowei_request(voiceid, TXCA_CHAT_TYPE_CS.txca_chat_via_text, request_byte,
-               (uint)request.Length, context_cs);
+            */
+            var ret = classDeviceSDK._xiaowei_request(voiceid, TXCA_CHAT_TYPE_CS.txca_chat_via_text, null,
+               (uint)request.Length, context_cs,request);
             StringBuilder sb = new StringBuilder();
             Trace.WriteLine(sb.Append("test text request, result = ").Append(ret).Append("voiceid is ").Append(voiceid.Get()));
         }
