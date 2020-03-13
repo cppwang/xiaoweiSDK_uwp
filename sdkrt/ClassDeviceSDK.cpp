@@ -212,8 +212,9 @@ int ClassDeviceSDK::_device_init(
     service_callback.xiaowei_callback.on_net_delay_callback = on_net_delay_callback;
     service_callback.xiaowei_callback.on_request_callback = on_request_callback;
     LogMessage("set log default function");
-    //device_set_log_func(on_device_log, info.run_mode == 0? 3 : 0, false);
-    LogMessage("init device");
+    // device_set_log_func(on_device_log, info.run_mode == 0? 3 : 0, false);
+    int ret = device_set_log_func(on_device_log, -1, false);
+    
     return device_init(&info, &notify, &init_path, 1,&service_callback);
 }
 
@@ -361,32 +362,25 @@ int ClassDeviceSDK::_xiaowei_start_service() {
 }
 
 int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
-    unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context, Platform::String^ req_str) {
-    if ((raw_data == nullptr && req_str == nullptr) || context == nullptr) return error_param_invalid;
+    unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context) {
+    if (raw_data == nullptr || context == nullptr) return error_param_invalid;
     char req_voice_id[100];
     const int MAX_BUF_SIZE = 2048;
     XIAOWEI_CHAT_TYPE req_type = (XIAOWEI_CHAT_TYPE)type;
 
     char* req_chat_data;
-    if (req_str == nullptr)
-    {
-        char buff[MAX_BUF_SIZE] = { 0 };
-        if (char_data_len > MAX_BUF_SIZE) {
-            req_chat_data = new char[char_data_len];
-        }
-        else {
-            req_chat_data = buff;
-        }
-        for (int i = 0; i < (int)char_data_len; i++)
-        {
-            req_chat_data[i] = raw_data[i];
-        }
+    char buff[MAX_BUF_SIZE] = { 0 };
+    if (char_data_len > MAX_BUF_SIZE) {
+        req_chat_data = new char[char_data_len];
     }
-    else
-    {
-        string req_string = StringUtf8ToAscIIChars(req_str);
-        req_chat_data = const_cast<char*>(req_string.c_str());
+    else {
+        req_chat_data = buff;
     }
+    for (int i = 0; i < (int)char_data_len; i++)
+    {
+        req_chat_data[i] = raw_data[i];
+    }
+  
 
     XIAOWEI_PARAM_CONTEXT req_context = { 0 };
     string str_context_id = StringToAscIIChars(context->Getid());
@@ -411,11 +405,8 @@ int ClassDeviceSDK::_xiaowei_request(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, TXCA_
     req_context.skill_info.type = skill_info.type;
     int ret = xiaowei_request(req_voice_id, req_type, req_chat_data, char_data_len, &req_context);
 
-    if (req_str == nullptr)
-    {
-        if (char_data_len > MAX_BUF_SIZE) {
-            delete[] req_chat_data;
-        }
+    if (char_data_len > MAX_BUF_SIZE) {
+        delete[] req_chat_data;
     }
     
     voice_id->Set(StringFromAscIIChars(req_voice_id));
@@ -463,8 +454,8 @@ int ClassDeviceSDK::_xiaowei_request_cmd(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, P
     if (cmd == nullptr) return error_param_invalid;
     char req_voice_id[100];
     string str_cmd = StringToAscIIChars(cmd);
-    string str_sub_cmd = sub_cmd ? "":StringToAscIIChars(sub_cmd);
-    string str_param = param ? "":StringToAscIIChars(param);
+    string str_sub_cmd = sub_cmd ? StringToAscIIChars(sub_cmd):"";
+    string str_param = param ? StringToAscIIChars(param):"";
     auto ret = xiaowei_request_cmd(req_voice_id, str_cmd.c_str(),
         str_sub_cmd.c_str(),
         str_param.c_str(),
@@ -635,9 +626,9 @@ void ClassDeviceSDK::on_cmd_request_callback(const char* voice_id, int xiaowei_e
 }
 
 int ClassDeviceSDK::on_device_log(int level, const char* tag, const char* filename, int line, const char* funcname, const char* data) {
-    char msg[20000];
-    _snprintf_s(msg, 20000, 20000, "[%d] %s %s[%d] %s %s", level, tag, filename, line, funcname, data);
-    OutputDebugStringA(msg);
+    //char msg[20000];
+    //_snprintf_s(msg, 20000, 20000, "[%d] %s %s[%d] %s %s", level, tag, filename, line, funcname, data);
+    //OutputDebugStringA(msg);
     return callBackOnLog(level, StringFromAscIIChars(tag), StringFromAscIIChars(filename), line, StringFromAscIIChars(funcname), StringFromAscIIChars(data));
 }
 

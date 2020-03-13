@@ -42,7 +42,7 @@ namespace App1
             classDeviceSDK = new ClassDeviceSDK();
             var v =  classDeviceSDK._device_get_sdk_version();
             Trace.Write("sdk version is ");
-            Trace.WriteLine(v);
+            Trace.WriteLine(v);/*
             ClassDeviceSDK.callBackOnLog += (level, tag, filename, line, funcname, data) =>
             {
                 StringBuilder sb = new StringBuilder();
@@ -50,7 +50,7 @@ namespace App1
                 Append(" ").Append(funcname).Append("] ").Append(data);
                 Trace.WriteLine(sb.ToString());
                 return 0;
-            };
+            };*/
             Trace.WriteLine("init call");
             int ret = classDeviceSDK._device_init("890d1af6be6cc5455261c5cfa8a2453d",
                 "MEYCIQDzD4ty1TMn4IQ5LuzUUzofWbm7m3mg73GmWBNu4/e7aQIhAPKqcNz5JKuDdmouS1oc/OZdzfOb9iLRZ5ajjpsvabNX",
@@ -129,17 +129,18 @@ namespace App1
             TXCA_PARAM_CONTEXT_CS context_cs = new TXCA_PARAM_CONTEXT_CS();
             context_cs.Setvoice_request_begin(true);
             String request = "hello";
-            /* utf8 problem
             byte[] request_byte = new byte[request.Length];
             for (int i = 0; i < request.Length; i++)
             {
                 request_byte[i] = (byte)request[i];
             }
-            */
-            var ret = classDeviceSDK._xiaowei_request(voiceid, TXCA_CHAT_TYPE_CS.txca_chat_via_text, null,
-               (uint)request.Length, context_cs,request);
+            //var ret = classDeviceSDK._xiaowei_request(voiceid, TXCA_CHAT_TYPE_CS.txca_chat_via_text, request_byte, (uint)request.Length, context_cs);
             StringBuilder sb = new StringBuilder();
-            Trace.WriteLine(sb.Append("test text request, result = ").Append(ret).Append("voiceid is ").Append(voiceid.Get()));
+            //Trace.WriteLine(sb.Append("test text request, result = ").Append(ret).Append("voiceid is ").Append(voiceid.Get()));
+            String cmd = "QQMUSIC";
+            String sub = "get_vip_info";
+            String param = "";
+            classDeviceSDK._xiaowei_request_cmd(voiceid,cmd ,sub , param);
         }
 
         private int ClassDeviceSDK_callBackOnLog(int level, string tag, string filename, int line, string funcname, string data)

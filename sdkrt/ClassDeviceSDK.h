@@ -806,7 +806,7 @@ namespace sdkrt
 
         // if req_str is nullptr, will use rwa_data, this can avoid utf-8 probelm
         int _xiaowei_request(_OUTPUT_PARAM_ VOICE_ID_CS^ voice_id, TXCA_CHAT_TYPE_CS type, const Array<byte>^ raw_data,
-            unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context, Platform::String^ req_str);
+            unsigned int char_data_len, TXCA_PARAM_CONTEXT_CS^ context);
 
         int _xiaowei_request_cancel(Platform::String^ voice_id);
 
