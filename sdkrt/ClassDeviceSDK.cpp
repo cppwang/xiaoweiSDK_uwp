@@ -213,7 +213,7 @@ int ClassDeviceSDK::_device_init(
     service_callback.xiaowei_callback.on_request_callback = on_request_callback;
     LogMessage("set log default function");
     // device_set_log_func(on_device_log, info.run_mode == 0? 3 : 0, false);
-    int ret = device_set_log_func(on_device_log, -1, false);
+    int ret = device_set_log_func(on_device_log, 0, false);
     
     return device_init(&info, &notify, &init_path, 1,&service_callback);
 }

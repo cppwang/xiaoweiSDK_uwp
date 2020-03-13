@@ -42,15 +42,16 @@ namespace App1
             classDeviceSDK = new ClassDeviceSDK();
             var v =  classDeviceSDK._device_get_sdk_version();
             Trace.Write("sdk version is ");
-            Trace.WriteLine(v);/*
+            Trace.WriteLine(v);
             ClassDeviceSDK.callBackOnLog += (level, tag, filename, line, funcname, data) =>
             {
+                if (level < 3) return 0;
                 StringBuilder sb = new StringBuilder();
                 sb.Append("[").Append(level).Append("/").Append(tag).Append(" ").Append(filename).Append(" ").Append(line).
                 Append(" ").Append(funcname).Append("] ").Append(data);
                 Trace.WriteLine(sb.ToString());
                 return 0;
-            };*/
+            };
             Trace.WriteLine("init call");
             int ret = classDeviceSDK._device_init("890d1af6be6cc5455261c5cfa8a2453d",
                 "MEYCIQDzD4ty1TMn4IQ5LuzUUzofWbm7m3mg73GmWBNu4/e7aQIhAPKqcNz5JKuDdmouS1oc/OZdzfOb9iLRZ5ajjpsvabNX",
